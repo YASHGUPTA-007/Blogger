@@ -21,7 +21,7 @@ const BlogItem: React.FC<BlogItemProps> = ({
   className = "" 
 }) => {
   return (
-    <Link href={`/blogs/${id}`}>
+    <Link href={`/blog/${id}`}>
       <div className={`max-w-[330px] bg-white border border-black hover:shadow-[-7px_7px_8px_#000000] transition-shadow duration-300 cursor-pointer ${className}`}>
         <Image 
           src={image} 

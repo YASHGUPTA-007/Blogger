@@ -3,9 +3,9 @@ import Image from 'next/image';
 import React from 'react';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface BlogData {
@@ -18,9 +18,36 @@ interface BlogData {
   date?: number;
 }
 
-const Page: React.FC<PageProps> = ({ params: { id } }) => {
-  // Find the blog post directly
-  const blogPost = blog_data.find((item: BlogData) => item.id === Number(id));
+const Page = async ({ params }: PageProps) => {
+  // Await the params in Next.js 15+
+  const { id } = await params;
+  
+  console.log('Received ID:', id);
+  console.log('Blog data:', blog_data);
+  
+  // Convert id to number and find the blog post
+  const blogId = parseInt(id, 10);
+  
+  // Check if id is a valid number
+  if (isNaN(blogId)) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Invalid Blog ID</h1>
+          <p className="text-gray-600">The blog ID must be a valid number.</p>
+          <a 
+            href="/blog" 
+            className="mt-4 inline-block text-blue-600 hover:text-blue-800 underline"
+          >
+            Back to all blogs
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Find the blog post
+  const blogPost = blog_data?.find((item: BlogData) => item.id === blogId);
 
   if (!blogPost) {
     return (
@@ -28,6 +55,15 @@ const Page: React.FC<PageProps> = ({ params: { id } }) => {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Blog Post Not Found</h1>
           <p className="text-gray-600">The blog post with ID {id} does not exist.</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Available IDs: {blog_data?.map(item => item.id).join(', ') || 'None'}
+          </p>
+          <a 
+            href="/" 
+            className="mt-4 inline-block text-blue-600 hover:text-blue-800 underline"
+          >
+            Back to all blogs
+          </a>
         </div>
       </div>
     );
@@ -52,6 +88,7 @@ const Page: React.FC<PageProps> = ({ params: { id } }) => {
           width={800}
           height={400}
           className="w-full h-auto border border-black shadow-[-7px_7px_8px_#000000]"
+          priority
         />
       </div>
 
@@ -63,7 +100,7 @@ const Page: React.FC<PageProps> = ({ params: { id } }) => {
 
       <div className="mt-12 pt-8 border-t border-gray-200">
         <a 
-          href="/blogs" 
+          href="/blog"
           className="inline-flex items-center gap-2 text-sm font-medium hover:text-gray-600 transition-colors"
         >
           ← Back to all blogs
